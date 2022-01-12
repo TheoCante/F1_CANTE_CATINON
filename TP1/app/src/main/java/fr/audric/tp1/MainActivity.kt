@@ -4,28 +4,30 @@ import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.*
 import androidx.navigation.fragment.NavHostFragment
-
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.engine.okhttp.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(R.layout.activity_main){
+    //val stringsViewModel : StringsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR)
-        /*val newFragment: Fragment = HomeFragment()
-        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragment_container_view, newFragment)
-        transaction.addToBackStack(null)
-        transaction.commit()*/
-        /*val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
-        val action = SpecifyAmountFragmentDirections.actionSpecifyAmountFragmentToConfirmationFragment()
-        view.findNavController().navigate(action)*/
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
     override fun onStart() {
         super.onStart()
@@ -65,8 +67,14 @@ class StringsViewModel : ViewModel() {
         return elements
     }
 
-    fun addElement(str: String) {
-        elements.value?.add(str)
+    fun addElement(adapter : Fragment2.ItemAdapter) {
+        val client = HttpClient(OkHttp)
+        viewModelScope.launch {
+            val httpResponse: HttpResponse = client.get("https://inspirobot.me/api?generate=true")
+            val stringBody: String = httpResponse.receive()
+            client.close()
+            elements.value?.add(stringBody)
+            adapter.notifyDataSetChanged()
+        }
     }
-
 }

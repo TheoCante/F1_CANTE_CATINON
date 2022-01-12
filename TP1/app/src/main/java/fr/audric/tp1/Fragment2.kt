@@ -23,14 +23,18 @@ import android.widget.TextView
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.findNavController
 import fr.audric.tp1.Fragment2.ItemAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class Fragment2 : Fragment(R.layout.fragment2) {
 
 
-    val stringsViewModel : StringsViewModel by viewModels()
+    val stringsViewModel : StringsViewModel by activityViewModels()
     var _adapter : ItemAdapter? = null
     var num = 0;
 
@@ -45,8 +49,8 @@ class Fragment2 : Fragment(R.layout.fragment2) {
         }
         val buttonAdd = view.findViewById<Button>(R.id.buttonAdd)
         buttonAdd?.setOnClickListener {
-            _adapter!!.addElement("Rebonjour" + num++)
-            _adapter!!.notifyDataSetChanged()
+            _adapter!!.addElement()
+
         }
 
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
@@ -58,18 +62,26 @@ class Fragment2 : Fragment(R.layout.fragment2) {
 
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var _nameView: TextView
-        fun update(name: String?) {
+        var _button: Button
+        fun update(name: String?,position:Int) {
             _nameView.text = name
+            _button.setOnClickListener {
+                var action = Fragment2Directions.actionFragment2ToHomeFragment()
+                action.elementPosition = position
+                itemView.findNavController().navigate(action)
+
+            }
         }
 
         init {
             _nameView = itemView.findViewById(R.id.recycle_item_text)
+            _button = itemView.findViewById(R.id.recycle_item_button)
         }
     }
 
     class ItemAdapter(var stringsViewModel : StringsViewModel) : RecyclerView.Adapter<ItemViewHolder>() {
-        fun addElement(newElement: String) {
-            stringsViewModel.addElement(newElement)
+        fun addElement() {
+            stringsViewModel.addElement(this)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -81,7 +93,7 @@ class Fragment2 : Fragment(R.layout.fragment2) {
         }
 
         override fun onBindViewHolder(viewHolder: ItemViewHolder, position: Int) {
-            viewHolder.update((stringsViewModel.getElements().value)?.get(position))
+            viewHolder.update((stringsViewModel.getElements().value)?.get(position),position)
         }
 
         override fun getItemCount(): Int {
