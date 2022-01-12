@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">TP1</string>
+    <string name="hello">Salut</string>
+    <string name="message">Bonjour</string>
+    <string name="intent1">letsgo</string>
+    <string name="button">Button</string>
+    <string name="buttonAdd">Ajouter</string>
+</resources>

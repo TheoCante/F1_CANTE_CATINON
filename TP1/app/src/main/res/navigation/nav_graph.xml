@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="fr.audric.tp1.HomeFragment"
+        android:label="HomeFragment" >
+        <action
+            android:id="@+id/action_homeFragment_to_fragment2"
+            app:destination="@id/fragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment2"
+        android:name="fr.audric.tp1.Fragment2"
+        android:label="Fragment2" >
+        <action
+            android:id="@+id/action_fragment2_to_placeholder2"
+            app:destination="@id/placeholder2" />
+    </fragment>
+    <fragment android:id="@+id/placeholder2" />
+</navigation>
