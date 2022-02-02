@@ -1,5 +1,6 @@
 package fr.audric.tp1
 
+import android.app.Application
 import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -7,11 +8,16 @@ import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.*
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
+import androidx.room.Room
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
@@ -27,7 +33,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main){
         super.onCreate(savedInstanceState)
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+        findViewById<Toolbar>(R.id.toolbar)
+            .setupWithNavController(navController, appBarConfiguration)
+
+
     }
     override fun onStart() {
         super.onStart()
@@ -52,29 +64,5 @@ class MainActivity : AppCompatActivity(R.layout.activity_main){
     override fun onDestroy() {
         super.onDestroy()
         Log.i("INFO","Destroy")
-    }
-
-
-
-}
-
-class StringsViewModel : ViewModel() {
-    private val elements: MutableLiveData<ArrayList<String>> = MutableLiveData<ArrayList<String>>()
-    init {
-        elements.value = ArrayList<String>()
-    }
-    fun getElements(): LiveData<ArrayList<String>> {
-        return elements
-    }
-
-    fun addElement(adapter : Fragment2.ItemAdapter) {
-        val client = HttpClient(OkHttp)
-        viewModelScope.launch {
-            val httpResponse: HttpResponse = client.get("https://inspirobot.me/api?generate=true")
-            val stringBody: String = httpResponse.receive()
-            client.close()
-            elements.value?.add(stringBody)
-            adapter.notifyDataSetChanged()
-        }
     }
 }

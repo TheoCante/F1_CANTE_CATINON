@@ -1,82 +1,105 @@
 package fr.audric.tp1
 
-import android.graphics.Color
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.*
 import androidx.fragment.app.Fragment
 
-import android.widget.*
-import androidx.core.app.Person.fromBundle
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.navArgs
-import kotlinx.coroutines.*
-import android.graphics.BitmapFactory
+import android.view.LayoutInflater
 
-import android.graphics.Bitmap
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.view.ViewGroup
+
+import androidx.recyclerview.widget.RecyclerView
+
+import android.widget.TextView
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import java.lang.Integer.min
-import java.net.URL
+import androidx.navigation.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class HomeFragment : Fragment(R.layout.home_fragment) {
-
-    lateinit var _progressBar : ProgressBar
-    lateinit var textView : TextView
-    lateinit var imageView : ImageView
     val stringsViewModel : StringsViewModel by activityViewModels()
-    val navArgs:HomeFragmentArgs by navArgs()
-
+    var _adapter : ItemAdapter? = null
+    var num = 0;
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val elementPosition = navArgs.elementPosition
 
-        Log.i("Position : ", "" + elementPosition)
-
-        textView = view.findViewById(R.id.textView)
-        imageView = view.findViewById(R.id.imageView)
-
-        _progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
-
-        val button2 = view.findViewById<Button>(R.id.button2)
-        button2?.setOnClickListener {
-            view.findNavController().navigate(R.id.action_homeFragment_to_fragment2)
+        var dbmanager = DbManager(activity as Context)
+        viewLifecycleOwner.lifecycleScope.launch{
+            val savedImages = dbmanager.getSavedImages()
+            for (im in savedImages){
+                Log.i("uneimage", im.imagePath!!)
+                stringsViewModel.addElement(im.imagePath)
+            }
         }
-        Log.i("INFO","Create")
-        coroutineProgress(elementPosition)
-    }
-    fun coroutineProgress(position: Int) = viewLifecycleOwner.lifecycleScope.launch{
-        _progressBar.visibility = View.VISIBLE
+        // Create the observer which updates the UI.
+        _adapter = ItemAdapter(ArrayList<String>(10))
 
-        val client = HttpClient(OkHttp)
-        val v = stringsViewModel.getElements().value
-        Log.i("array",""+v)
-        val url = (stringsViewModel.getElements().value)?.get(position)
-        val httpResponse: HttpResponse = client.get(url!!)
-        val byteArray: ByteArray = httpResponse.receive()
-        client.close()
+        stringsViewModel.elements.observe(this) { list ->
+            _adapter!!.updateElements(list)
+        }
 
-        /*val bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream())
-        imageView.setImageBitmap(bmp)*/
+        val button = view.findViewById<Button>(R.id.buttonIntent)
+        button?.setOnClickListener {
+            //val intent = Intent("android.media.action.IMAGE_CAPTURE")
+            //startActivity(intent)
+        }
+        val buttonAdd = view.findViewById<Button>(R.id.buttonAdd)
+        buttonAdd?.setOnClickListener {
+            stringsViewModel.addElement()
+        }
 
-        val bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-        imageView.setImageBitmap(Bitmap.createScaledBitmap(bmp, imageView.width, imageView.height, false))
-
-        _progressBar.visibility = View.INVISIBLE
-
-
+        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(view.context)
+        recyclerView.adapter = _adapter
     }
 
+
+    class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var _nameView: TextView
+        var _button: Button
+        fun update(name: String?,position:Int) {
+            _nameView.text = name
+            _button.setOnClickListener {
+                val action = HomeFragmentDirections.actionFragment2ToHomeFragment()
+                action.elementPosition = position
+                itemView.findNavController().navigate(action)
+            }
+        }
+
+        init {
+            _nameView = itemView.findViewById(R.id.recycle_item_text)
+            _button = itemView.findViewById(R.id.recycle_item_button)
+        }
+    }
+
+    class ItemAdapter(var images : List<String>) : RecyclerView.Adapter<ItemViewHolder>() {
+        fun updateElements(newImages : List<String>) {
+            images = newImages
+            notifyDataSetChanged()
+        }
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+            val context: Context = parent.context
+            val inflater = LayoutInflater.from(context)
+            val view: View = inflater.inflate(R.layout.list_elt, parent, false)
+
+            return ItemViewHolder(view)
+        }
+
+        override fun onBindViewHolder(viewHolder: ItemViewHolder, position: Int) {
+            viewHolder.update(images[position],position)
+        }
+
+        override fun getItemCount(): Int {
+            return images.size
+        }
+    }
 }
