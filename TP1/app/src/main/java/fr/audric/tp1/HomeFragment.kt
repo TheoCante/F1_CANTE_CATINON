@@ -2,7 +2,6 @@ package fr.audric.tp1
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -15,12 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 import android.widget.TextView
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 class HomeFragment : Fragment(R.layout.home_fragment) {
@@ -31,16 +26,8 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var dbmanager = DbManager(activity as Context)
-        viewLifecycleOwner.lifecycleScope.launch{
-            val savedImages = dbmanager.getSavedImages()
-            for (im in savedImages){
-                Log.i("uneimage", im.imagePath!!)
-                stringsViewModel.addElement(im.imagePath)
-            }
-        }
         // Create the observer which updates the UI.
-        _adapter = ItemAdapter(ArrayList<String>(10))
+        _adapter = ItemAdapter(ArrayList<Image>(10))
 
         stringsViewModel.elements.observe(this) { list ->
             _adapter!!.updateElements(list)
@@ -53,7 +40,14 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
         }
         val buttonAdd = view.findViewById<Button>(R.id.buttonAdd)
         buttonAdd?.setOnClickListener {
-            stringsViewModel.addElement()
+               stringsViewModel.genElement()
+        }
+
+        stringsViewModel.errors.observe(viewLifecycleOwner) {
+            if(it != null) {
+                Toast.makeText(this.context,"Pas de co (${it::class.java.simpleName}", Toast.LENGTH_LONG).show()
+                stringsViewModel.clearError()
+            }
         }
 
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
@@ -65,8 +59,8 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var _nameView: TextView
         var _button: Button
-        fun update(name: String?,position:Int) {
-            _nameView.text = name
+        fun update(image: Image?,position:Int) {
+            _nameView.text = image?.imageName
             _button.setOnClickListener {
                 val action = HomeFragmentDirections.actionFragment2ToHomeFragment()
                 action.elementPosition = position
@@ -80,8 +74,8 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
         }
     }
 
-    class ItemAdapter(var images : List<String>) : RecyclerView.Adapter<ItemViewHolder>() {
-        fun updateElements(newImages : List<String>) {
+    class ItemAdapter(var images : List<Image>) : RecyclerView.Adapter<ItemViewHolder>() {
+        fun updateElements(newImages: List<Image>) {
             images = newImages
             notifyDataSetChanged()
         }
