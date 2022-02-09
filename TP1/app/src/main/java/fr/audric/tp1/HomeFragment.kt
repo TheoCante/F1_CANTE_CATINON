@@ -29,7 +29,7 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
         // Create the observer which updates the UI.
         _adapter = ItemAdapter(ArrayList<Image>(10))
 
-        stringsViewModel.elements.observe(this) { list ->
+        stringsViewModel.elements.observe(viewLifecycleOwner) { list ->
             _adapter!!.updateElements(list)
         }
 
