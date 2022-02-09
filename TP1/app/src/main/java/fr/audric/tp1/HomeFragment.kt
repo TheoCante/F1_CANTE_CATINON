@@ -33,11 +33,6 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
             _adapter!!.updateElements(list)
         }
 
-        val button = view.findViewById<Button>(R.id.buttonIntent)
-        button?.setOnClickListener {
-            //val intent = Intent("android.media.action.IMAGE_CAPTURE")
-            //startActivity(intent)
-        }
         val buttonAdd = view.findViewById<Button>(R.id.buttonAdd)
         buttonAdd?.setOnClickListener {
                stringsViewModel.genElement()
