@@ -1,40 +1,44 @@
 package fr.audric.tp1
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.*
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.okhttp.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 class StringsViewModel(application: Application) : AndroidViewModel(application) {
-    private val _elements: MutableLiveData<List<Image>> = MutableLiveData<List<Image>>()
-    val elements: LiveData<List<Image>> = _elements
-
     val errors = MutableLiveData<Exception?>()
-    val imageManager = ImageManager(application)
+    private val imageManager = ImageManager(application)
 
-    init {
-        viewModelScope.launch{
-          _elements.value = imageManager.getSavedImages()
+    private val generatedImagesLiveData = MutableLiveData<List<GeneratedImage>>(emptyList())
+
+    val elementsLiveData: LiveData<List<CommonImage>> = imageManager.watchSavedImages().switchMap {
+    storedImages ->
+        generatedImagesLiveData.map { generatedImages ->
+            storedImages + generatedImages.filter {generatedImage ->
+                !storedImages.any { it.imageName == generatedImage.url.removePrefix(imageManager.urlPrefix) }
+            }
+
         }
     }
 
     fun genElement() = viewModelScope.launch {
         try {
-            val str = imageManager.genereImage()!!
-            if (_elements.value?.find { it == str } == null)
-                _elements.value = _elements.value.orEmpty() + str
+            val image = imageManager.genereImage()
+            Log.d("StringsViewModel", "image $image")
+            val storedImages = generatedImagesLiveData.value.orEmpty()
+            if (!storedImages.contains(image)) {
+                generatedImagesLiveData.value = storedImages + image
+            }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             errors.value = e
         }
+    }
+
+    suspend fun saveImage(imageUrl: String?){
+        imageManager.saveImage(imageUrl)
     }
 
     fun clearError(){

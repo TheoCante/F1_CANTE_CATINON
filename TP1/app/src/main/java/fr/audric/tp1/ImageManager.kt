@@ -2,13 +2,18 @@ package fr.audric.tp1
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.NonNull
+import androidx.lifecycle.LiveData
 import androidx.room.Room
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.okhttp.*
-import io.ktor.client.features.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
 
 class ImageManager(applicationContext: Context) {
     var db : AppDatabase = Room.databaseBuilder(
@@ -20,60 +25,48 @@ class ImageManager(applicationContext: Context) {
     val ctx = applicationContext
     val urlPrefix = "https://generated.inspirobot.me/a/"
 
-    suspend fun genereImage(): Image? {
-        try{
-            val httpResponse: HttpResponse = client.get("https://inspirobot.me/api?generate=true")
-            var stringBody: String = httpResponse.receive()
-            stringBody = stringBody.substring(34)
-            return Image(stringBody.hashCode(), stringBody)
-        }
-        catch(e:Exception){
-            Log.e("Err","Erreur réseau")
-        }
-        return null
+    suspend fun genereImage(): GeneratedImage {
+        val httpResponse: HttpResponse = client.get("https://inspirobot.me/api?generate=true")
+        var url: String = httpResponse.receive()
+        return GeneratedImage(url)
     }
 
-    suspend fun getSavedImages(): List<Image> {
+    suspend fun getSavedImages(): List<StoredImage> {
         val imageDao = db.imageDao()
-        val images: List<Image> = imageDao.getAll()
+        val images: List<StoredImage> = imageDao.getAll()
         return images
     }
 
-    suspend fun saveImage(image : Image){
+    fun watchSavedImages(): LiveData<List<StoredImage>> =  db.imageDao().watchAll()
+
+
+    private suspend fun getImageFromWeb(image: StoredImage):ByteArray {
+        val httpResponse: HttpResponse = client.get(image.imageUrl)
+        return httpResponse.receive()
+    }
+
+
+    suspend fun saveImage(imageUrl: String?){
+        if(imageUrl == null) return
+        val imageToSave: StoredImage = StoredImage(imageUrl.removePrefix(urlPrefix))
         val imageDao = db.imageDao()
-        try{
-            imageDao.insertAll(image)
-            Log.i("image","image saved")
-            val filename = image.imageName
-            ctx.openFileOutput(filename, Context.MODE_PRIVATE).use {
-                val c = getByteArray(image)
-                it.write(c)
+        imageDao.insertAll(imageToSave)
+        Log.i("image", "image saved")
+        val filename = imageToSave.imageName
+        val file = File(ctx.filesDir, filename)
+        try {
+            val imageArray = getImageFromWeb(imageToSave)
+            withContext(Dispatchers.IO) {
+                file.writeBytes(imageArray)
             }
-        }
-        catch (e: Exception){
-            Log.i("image","image not saved")
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e("FILE", "error", e)
         }
     }
 
-    suspend fun getByteArray(image: Image): ByteArray? {
-        try{
-            val c= ctx.openFileInput(image.imageName).readBytes()
-            if(c.isNotEmpty()) return c
-        }
-        catch (e: Exception){
-            Log.i("FILE","Image non stockée")
-        }
-        try{
-            val httpResponse: HttpResponse = client.get(getImageUrl(image))
-            return httpResponse.receive()
-        }
-        catch (e: Exception){
-            Log.e("FILE","Pas de co")
-        }
-        return null
-    }
+    val StoredImage.imageUrl:String
+    get() = urlPrefix + imageName
 
-    fun getImageUrl(image: Image): String{
-        return urlPrefix + image.imageName
-    }
 }

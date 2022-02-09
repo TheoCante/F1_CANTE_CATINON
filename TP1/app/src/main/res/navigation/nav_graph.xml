@@ -12,9 +12,8 @@
             android:id="@+id/action_homeFragment_to_fragment2"
             app:destination="@id/fragment2" />
         <argument
-            android:name="elementPosition"
-            android:defaultValue="0"
-            app:argType="integer" />
+            android:name="ImageURL"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/fragment2"

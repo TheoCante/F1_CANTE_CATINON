@@ -2,40 +2,49 @@ package fr.audric.tp1
 
 import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
-
-import android.view.LayoutInflater
-
-import android.view.ViewGroup
-
-import androidx.recyclerview.widget.RecyclerView
-
-import android.widget.TextView
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import java.io.File
 
 
 class HomeFragment : Fragment(R.layout.home_fragment) {
     val stringsViewModel : StringsViewModel by activityViewModels()
-    var _adapter : ItemAdapter? = null
+    lateinit var _adapter : ItemAdapter
     var num = 0;
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super.onViewCreated(view, savedInstanceState)
+
+        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(view.context)
 
         // Create the observer which updates the UI.
-        _adapter = ItemAdapter(ArrayList<Image>(10))
+        _adapter = ItemAdapter(ArrayList<StoredImage>(10), object : UpdateCallbacks{
+            override fun onClick(image: CommonImage){
+                if(image is GeneratedImage) {
+                    findNavController().navigate(HomeFragmentDirections.actionFragment2ToHomeFragment(image.url))
+                }
+                if(image is StoredImage) {
+                    findNavController().navigate(HomeFragmentDirections.actionFragment2ToHomeFragment(image.imageName))
+                }
+            }
+        })
 
-        stringsViewModel.elements.observe(viewLifecycleOwner) { list ->
-            _adapter!!.updateElements(list)
+        stringsViewModel.elementsLiveData.observe(viewLifecycleOwner) { list ->
+            _adapter.updateElements(list)
         }
 
         val buttonAdd = view.findViewById<Button>(R.id.buttonAdd)
-        buttonAdd?.setOnClickListener {
-               stringsViewModel.genElement()
+        buttonAdd.setOnClickListener {
+            stringsViewModel.genElement()
         }
 
         stringsViewModel.errors.observe(viewLifecycleOwner) {
@@ -44,33 +53,37 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
                 stringsViewModel.clearError()
             }
         }
-
-        val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(view.context)
         recyclerView.adapter = _adapter
     }
 
 
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var _nameView: TextView
+        var _imageView: ImageView
         var _button: Button
-        fun update(image: Image?,position:Int) {
-            _nameView.text = image?.imageName
-            _button.setOnClickListener {
-                val action = HomeFragmentDirections.actionFragment2ToHomeFragment()
-                action.elementPosition = position
-                itemView.findNavController().navigate(action)
-            }
-        }
 
         init {
             _nameView = itemView.findViewById(R.id.recycle_item_text)
             _button = itemView.findViewById(R.id.recycle_item_button)
+            _imageView = itemView.findViewById(R.id.recycle_item_image)
+        }
+
+        fun update(image: CommonImage,classeFunction : UpdateCallbacks) {
+//            _nameView.text = image.imageName
+            _button.setOnClickListener {
+                classeFunction.onClick(image)
+            }
+            if(image is StoredImage) {
+                val imageFile =  File(_imageView.context.filesDir, image.imageName)
+                _imageView.load(imageFile)
+            } else if(image is GeneratedImage) {
+                _imageView.load(R.drawable.unknown)
+            }
         }
     }
 
-    class ItemAdapter(var images : List<Image>) : RecyclerView.Adapter<ItemViewHolder>() {
-        fun updateElements(newImages: List<Image>) {
+    class ItemAdapter(var images : List<CommonImage>, val classeFunction : UpdateCallbacks) : RecyclerView.Adapter<ItemViewHolder>() {
+        fun updateElements(newImages: List<CommonImage>) {
             images = newImages
             notifyDataSetChanged()
         }
@@ -79,16 +92,23 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
             val context: Context = parent.context
             val inflater = LayoutInflater.from(context)
             val view: View = inflater.inflate(R.layout.list_elt, parent, false)
-
             return ItemViewHolder(view)
         }
 
         override fun onBindViewHolder(viewHolder: ItemViewHolder, position: Int) {
-            viewHolder.update(images[position],position)
+            val image = images[position]
+            viewHolder.itemView.setOnClickListener(){
+                classeFunction.onClick(image)
+            }
+            viewHolder.update(image,classeFunction)
         }
 
         override fun getItemCount(): Int {
             return images.size
         }
+    }
+
+    interface UpdateCallbacks{
+        fun onClick(image : CommonImage)
     }
 }
