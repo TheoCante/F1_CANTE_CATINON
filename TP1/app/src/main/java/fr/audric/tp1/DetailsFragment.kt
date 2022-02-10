@@ -11,6 +11,7 @@ import kotlinx.coroutines.*
 
 import androidx.fragment.app.activityViewModels
 import android.content.Intent
+import android.net.Uri
 import coil.load
 import java.io.File
 
@@ -28,10 +29,10 @@ class DetailsFragment : Fragment(R.layout.details_fragment) {
         val imageURL = navArgs.imageURL
 
         //image = (stringsViewModel.elements.value)?.get(elementPosition)!!
-        textView = view.findViewById(R.id.textView)
+        //textView = view.findViewById(R.id.textView)
         imageView = view.findViewById(R.id.imageView)
 
-        _progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
+        //_progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
 
         val buttonSave = view.findViewById<Button>(R.id.button_save)
         buttonSave?.setOnClickListener {
@@ -43,7 +44,7 @@ class DetailsFragment : Fragment(R.layout.details_fragment) {
         buttonShare.setOnClickListener {
             val shareIntent: Intent = Intent().apply {
                 action = Intent.ACTION_SEND
-//                putExtra(Intent.EXTRA_STREAM, Uri.parse(stringsViewModel.imageManager.getImageUrl(image)))
+                putExtra(Intent.EXTRA_STREAM, Uri.parse(imageURL))
                 type = "image/jpeg"
             }
 
@@ -57,19 +58,6 @@ class DetailsFragment : Fragment(R.layout.details_fragment) {
             imageView.load(imageFile)
         }
 
-        //coroutineDownloadImage(image)
-    }
-
-    private fun coroutineDownloadImage(image: StoredImage) = viewLifecycleOwner.lifecycleScope.launch{
-        _progressBar.visibility = View.VISIBLE
-        var byteArray: ByteArray? = null
-//        do{
-//            byteArray = stringsViewModel.imageManager.getByteArray(image)
-//            delay(100)
-//        }while (byteArray == null)
-//        val bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-//        imageView.setImageBitmap(bmp)
-        _progressBar.visibility = View.INVISIBLE
     }
 
 }
