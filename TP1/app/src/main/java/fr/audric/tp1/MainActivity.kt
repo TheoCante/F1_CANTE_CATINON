@@ -38,31 +38,5 @@ class MainActivity : AppCompatActivity(R.layout.activity_main){
         val appBarConfiguration = AppBarConfiguration(navController.graph)
         findViewById<Toolbar>(R.id.toolbar)
             .setupWithNavController(navController, appBarConfiguration)
-
-
-    }
-    override fun onStart() {
-        super.onStart()
-        Log.i("INFO","Start")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.i("INFO","Pause")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.i("INFO","Stop")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.i("INFO","Resume")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.i("INFO","Destroy")
     }
 }

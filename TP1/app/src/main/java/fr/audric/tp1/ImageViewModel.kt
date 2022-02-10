@@ -6,7 +6,7 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
-class StringsViewModel(application: Application) : AndroidViewModel(application) {
+class ImageViewModel(application: Application) : AndroidViewModel(application) {
     val errors = MutableLiveData<Exception?>()
     private val imageManager = ImageManager(application)
 

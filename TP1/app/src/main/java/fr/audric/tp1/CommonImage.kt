@@ -1,4 +1,3 @@
 package fr.audric.tp1
 
-interface CommonImage {
-}
+interface CommonImage

@@ -21,7 +21,7 @@ class DetailsFragment : Fragment(R.layout.details_fragment) {
     lateinit var _progressBar : ProgressBar
     lateinit var textView : TextView
     lateinit var imageView : ImageView
-    val stringsViewModel : StringsViewModel by activityViewModels()
+    val imageViewModel : ImageViewModel by activityViewModels()
     val navArgs:DetailsFragmentArgs by navArgs()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,7 +37,7 @@ class DetailsFragment : Fragment(R.layout.details_fragment) {
         val buttonSave = view.findViewById<Button>(R.id.button_save)
         buttonSave?.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default){
-                stringsViewModel.saveImage(imageURL)
+                imageViewModel.saveImage(imageURL)
             }
         }
         val buttonShare: Button = view.findViewById(R.id.button_share)
