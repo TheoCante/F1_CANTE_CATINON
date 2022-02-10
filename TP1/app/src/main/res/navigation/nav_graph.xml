@@ -2,25 +2,25 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/fragment2">
+    app:startDestination="@id/HomeFragment">
 
     <fragment
-        android:id="@+id/homeFragment"
+        android:id="@+id/DetailsFragment"
         android:name="fr.audric.tp1.DetailsFragment"
         android:label="Image">
         <action
             android:id="@+id/action_homeFragment_to_fragment2"
-            app:destination="@id/fragment2" />
+            app:destination="@id/HomeFragment" />
         <argument
-            android:name="ImageURL"
+            android:name="ImageStr"
             app:argType="string" />
     </fragment>
     <fragment
-        android:id="@+id/fragment2"
+        android:id="@+id/HomeFragment"
         android:name="fr.audric.tp1.HomeFragment"
         android:label="Accueil">
         <action
             android:id="@+id/action_fragment2_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            app:destination="@id/DetailsFragment" />
     </fragment>
 </navigation>

@@ -15,49 +15,56 @@ import android.net.Uri
 import coil.load
 import java.io.File
 
-
+//Fragment d'affichage d'une image
 class DetailsFragment : Fragment(R.layout.details_fragment) {
-
-    lateinit var _progressBar : ProgressBar
-    lateinit var textView : TextView
-    lateinit var imageView : ImageView
-    val imageViewModel : ImageViewModel by activityViewModels()
-    val navArgs:DetailsFragmentArgs by navArgs()
+    // Recupere le ViewModel
+    private val imageViewModel : ImageViewModel by activityViewModels()
+    //Recupere les Arguments de la navogation
+    private val navArgs:DetailsFragmentArgs by navArgs()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val imageURL = navArgs.imageURL
 
-        //image = (stringsViewModel.elements.value)?.get(elementPosition)!!
-        //textView = view.findViewById(R.id.textView)
-        imageView = view.findViewById(R.id.imageView)
+        // On recupere l'argument de ce Fragment
+        val imageStr = navArgs.imageStr
 
-        //_progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
-
+        // On recupere le bouton de sauvegarde
         val buttonSave = view.findViewById<Button>(R.id.button_save)
         buttonSave?.setOnClickListener {
+            // Lors du clic sur le bouton on sauvegarde l'image dans un fichier
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default){
-                imageViewModel.saveImage(imageURL)
+                imageViewModel.saveImage(imageStr)
             }
         }
+
+        // On recupere le bouton de partage
         val buttonShare: Button = view.findViewById(R.id.button_share)
         buttonShare.setOnClickListener {
+            // Lors du clic sur le bouton on lance un Intent de partage avec l'image a l'interieur
+            // Creation de l'Intent
             val shareIntent: Intent = Intent().apply {
+                // On definit l'action comme un envoie
                 action = Intent.ACTION_SEND
-                putExtra(Intent.EXTRA_STREAM, Uri.parse(imageURL))
+                // On met l'image dans l'Intent
+                putExtra(Intent.EXTRA_STREAM, Uri.parse(imageStr))
+                // On definit le type d'Intent
                 type = "image/jpeg"
             }
-
-            startActivity(Intent.createChooser(shareIntent, null))
+            // On lance l'Intent
+            startActivity(Intent.createChooser(shareIntent, "Partage d'image"))
         }
 
-        if(imageURL.contains("https://")) {
-            imageView.load(imageURL)
+        // On recupere l'imageView
+        val imageView = view.findViewById<ImageView>(R.id.imageView)
+        // On affiche l'image dans l'imageView
+        if(imageStr.contains("https://")) {// si imageStr est une url
+            // Coil affiche l'image depuis internet grace a coil
+            imageView.load(imageStr)
         }else{
-            val imageFile =  File(imageView.context.filesDir, imageURL)
+            // On recupere le fichier de l'image stocke
+            val imageFile =  File(imageView.context.filesDir, imageStr)
+            // Coil affiche l'image depuis son fichier
             imageView.load(imageFile)
         }
-
     }
-
 }

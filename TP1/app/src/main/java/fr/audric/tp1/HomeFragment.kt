@@ -1,24 +1,19 @@
 package fr.audric.tp1
 
-import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import java.io.File
+
 
 
 class HomeFragment : Fragment(R.layout.home_fragment) {
-    val imageViewModel : ImageViewModel by activityViewModels()
-    lateinit var _adapter : ItemAdapter
-    var num = 0;
+    private val imageViewModel : ImageViewModel by activityViewModels()
+    private lateinit var _adapter : ItemAdapter
 
     //creation du fragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
