@@ -10,10 +10,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 
-
+// Fragment d'acceuil de l'application
 class HomeFragment : Fragment(R.layout.home_fragment) {
+    // Recupere le ViewModel
     private val imageViewModel : ImageViewModel by activityViewModels()
-    private lateinit var _adapter : ItemAdapter
 
     //creation du fragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -22,7 +22,7 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
         recyclerView.layoutManager = LinearLayoutManager(view.context)
 
         // Creation de l'adapter qui sera associe a la RecyclerView
-        _adapter = ItemAdapter(ArrayList<StoredImage>(10),
+        val customAdapter = ItemAdapter(ArrayList<StoredImage>(10),
             // Callback des Views dans la RecyclerView
             object : UpdateCallbacks{
                 // Redefinition de onClick
@@ -39,7 +39,7 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
 
         // Creation de l'observer qui mets a jour l'UI
         imageViewModel.elementsLiveData.observe(viewLifecycleOwner) { list ->
-            _adapter.updateElements(list)
+            customAdapter.updateElements(list)
         }
 
         // Recuperation du bonton d'ajout d'image
@@ -58,6 +58,6 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
         }
 
         // On donne notre adapter a la RecyclerView
-        recyclerView.adapter = _adapter
+        recyclerView.adapter = customAdapter
     }
 }

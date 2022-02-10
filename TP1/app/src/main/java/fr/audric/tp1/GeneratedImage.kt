@@ -1,4 +1,4 @@
 package fr.audric.tp1
 
-data class GeneratedImage(val url: String) : CommonImage {
-}
+// Une GeneratedImage contient l'url de son image
+data class GeneratedImage(val url: String) : CommonImage

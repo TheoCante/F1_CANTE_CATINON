@@ -37,7 +37,7 @@ class ImageViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    suspend fun saveImage(imageUrl: String?){
+    suspend fun saveImage(imageUrl: String){
         imageManager.saveImage(imageUrl)
     }
 
