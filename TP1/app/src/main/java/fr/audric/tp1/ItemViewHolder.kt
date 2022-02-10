@@ -9,22 +9,25 @@ import java.io.File
 
 // Notre ViewHolder customise
 class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    var _imageView: ImageView
-    var _button: Button
 
-    init {
-        _button = itemView.findViewById(R.id.recycle_item_button)
-        _imageView = itemView.findViewById(R.id.recycle_item_image)
-    }
+    // Recupere l'imageView de la case du RecyclerView
+    private val _imageView: ImageView = itemView.findViewById(R.id.recycle_item_image)
+    // Recupere le bouton de la case du RecyclerView
+    private val _button: Button = itemView.findViewById(R.id.recycle_item_button)
 
     fun update(image: CommonImage,classeFunction : UpdateCallbacks) {
+        // Fixe un Callback sur le clic du bouton
         _button.setOnClickListener {
             classeFunction.onClick(image)
         }
+        // Si l'image est stockee
         if(image is StoredImage) {
+            // On cherche l'image dans le systeme de fichier
             val imageFile =  File(_imageView.context.filesDir, image.imageName)
+            // Affiche l'image dans l'imageView grace a coil
             _imageView.load(imageFile)
-        } else if(image is GeneratedImage) {
+        } else {
+            // Affiche l'image inconnu
             _imageView.load(R.drawable.unknown)
         }
     }
