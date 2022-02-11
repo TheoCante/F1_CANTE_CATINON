@@ -6,6 +6,7 @@ import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -15,11 +16,16 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
     // Recupere le ViewModel
     private val imageViewModel : ImageViewModel by activityViewModels()
 
-    //creation du fragment
+    // Creation du fragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Recuperation du layoutManager
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
+
+        // Creation d'un LayoutManager pour la recyclerView
         recyclerView.layoutManager = LinearLayoutManager(view.context)
+
 
         // Creation de l'adapter qui sera associe a la RecyclerView
         val customAdapter = ItemAdapter(ArrayList<StoredImage>(10),
@@ -28,16 +34,16 @@ class HomeFragment : Fragment(R.layout.home_fragment) {
                 // Redefinition de onClick
                 override fun onClick(image: CommonImage){
                     // On passe a la vue detaille de l'image
-                    if(image is GeneratedImage) {//Si l'image est genere on envoie l'URL
+                    if(image is GeneratedImage) {//Si l'image est generee on envoie l'URL
                         findNavController().navigate(HomeFragmentDirections.actionFragment2ToHomeFragment(image.url))
                     }
-                    if(image is StoredImage) {//Si l'image est stocke on envoie le nom
+                    if(image is StoredImage) {//Si l'image est stockee on envoie le nom
                         findNavController().navigate(HomeFragmentDirections.actionFragment2ToHomeFragment(image.imageName))
                     }
                 }
         })
 
-        // Creation de l'observer qui mets a jour l'UI
+        // Creation de l'observer qui met a jour l'UI
         imageViewModel.elementsLiveData.observe(viewLifecycleOwner) { list ->
             customAdapter.updateElements(list)
         }

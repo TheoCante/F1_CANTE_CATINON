@@ -27,7 +27,7 @@ class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             // Affiche l'image dans l'imageView grace a coil
             _imageView.load(imageFile)
         } else {
-            // Affiche l'image inconnu
+            // Affiche l'image 'inconnu'
             _imageView.load(R.drawable.unknown)
         }
     }

@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">TP1</string>
-    <string name="hello">Chargement en cours...</string>
+    <string name="app_name">TP PAM</string>
     <string name="message">Bonjour</string>
     <string name="intent1">Partager</string>
     <string name="save">Sauvegarder</string>
