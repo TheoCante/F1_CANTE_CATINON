@@ -6,4 +6,5 @@
     <string name="button">Button</string>
     <string name="buttonAdd">Ajouter</string>
     <string name="buttonDetails">Voir l\'image</string>
+    <string name="imageSavedMessage">Image sauvegardée !</string>
 </resources>

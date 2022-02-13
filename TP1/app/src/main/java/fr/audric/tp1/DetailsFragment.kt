@@ -13,13 +13,14 @@ import androidx.fragment.app.activityViewModels
 import android.content.Intent
 import android.net.Uri
 import coil.load
+import com.google.android.material.snackbar.Snackbar
 import java.io.File
 
-//Fragment d'affichage d'une image
+// Fragment affichant une image sélectionnée depuis l'accueil
 class DetailsFragment : Fragment(R.layout.details_fragment) {
     // Recupere le ViewModel
     private val imageViewModel : ImageViewModel by activityViewModels()
-    //Recupere les Arguments de la navogation
+    //Recupere les Arguments de la navigation
     private val navArgs:DetailsFragmentArgs by navArgs()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -34,6 +35,8 @@ class DetailsFragment : Fragment(R.layout.details_fragment) {
             // Lors du clic sur le bouton on sauvegarde l'image dans un fichier
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default){
                 imageViewModel.saveImage(imageStr)
+                // On informe l'utilisateur que l'image a ete sauvee
+                Snackbar.make(view, R.string.imageSavedMessage, Snackbar.LENGTH_SHORT).show()
             }
         }
 
@@ -58,9 +61,13 @@ class DetailsFragment : Fragment(R.layout.details_fragment) {
         val imageView = view.findViewById<ImageView>(R.id.imageView)
         // On affiche l'image dans l'imageView
         if(imageStr.contains("https://")) {// si imageStr est une url
+            // Cette image n'est pas en memoire, on affoche le bouton de sauvegarde
+            buttonSave.visibility = View.VISIBLE
             // Coil affiche l'image depuis internet grace a coil
             imageView.load(imageStr)
         }else{
+            // Cette image est deja en memoire, on masque le bouton de sauvegarde
+            buttonSave.visibility = View.INVISIBLE
             // On recupere le fichier de l'image stocke
             val imageFile =  File(imageView.context.filesDir, imageStr)
             // Coil affiche l'image depuis son fichier

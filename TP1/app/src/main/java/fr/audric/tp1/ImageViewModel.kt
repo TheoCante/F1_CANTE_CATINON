@@ -1,6 +1,7 @@
 package fr.audric.tp1
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
