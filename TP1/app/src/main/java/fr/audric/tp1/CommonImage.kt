@@ -1,4 +1,4 @@
 package fr.audric.tp1
 
-//  Interface decrivant une image qui peut etre soit stocke soit genere
+//  Interface décrivant une image qui peut être soit stockée soit générée
 interface CommonImage
