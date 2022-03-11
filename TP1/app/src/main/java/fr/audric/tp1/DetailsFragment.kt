@@ -37,6 +37,7 @@ class DetailsFragment : Fragment(R.layout.details_fragment) {
                 imageViewModel.saveImage(imageStr)
                 // On informe l'utilisateur que l'image a ete sauvee
                 Snackbar.make(view, R.string.imageSavedMessage, Snackbar.LENGTH_SHORT).show()
+                buttonSave.visibility = View.INVISIBLE
             }
         }
 
@@ -61,7 +62,7 @@ class DetailsFragment : Fragment(R.layout.details_fragment) {
         val imageView = view.findViewById<ImageView>(R.id.imageView)
         // On affiche l'image dans l'imageView
         if(imageStr.contains("https://")) {// si imageStr est une url
-            // Cette image n'est pas en memoire, on affoche le bouton de sauvegarde
+            // Cette image n'est pas en memoire, on affiche le bouton de sauvegarde
             buttonSave.visibility = View.VISIBLE
             // Coil affiche l'image depuis internet grace a coil
             imageView.load(imageStr)
