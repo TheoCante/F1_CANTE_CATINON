@@ -37,8 +37,8 @@ class DetailsFragment : Fragment(R.layout.details_fragment) {
                 imageViewModel.saveImage(imageStr)
                 // On informe l'utilisateur que l'image a ete sauvése
                 Snackbar.make(view, R.string.imageSavedMessage, Snackbar.LENGTH_SHORT).show()
-                buttonSave.visibility = View.INVISIBLE
             }
+            buttonSave.visibility = View.INVISIBLE
         }
 
         // On récupère le bouton de partage
