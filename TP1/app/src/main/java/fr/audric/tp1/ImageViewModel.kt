@@ -6,23 +6,23 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
-// Le view Model permettant de transemettre les infos entre les Fragments
+// Le view Model permettant de transmettre les infos entre les Fragments
 class ImageViewModel(application: Application) : AndroidViewModel(application) {
-    //  Une LiveData d'erreur pour prevenir des erreurs lors des traitements pour le ViewModel
+    //  Une LiveData d'erreur pour prévenir des erreurs lors des traitements pour le ViewModel
     val errors = MutableLiveData<Exception?>()
 
-    // Creation d'un ImageManager avec la base de donnes contenant toutes les images stockes
+    // Création d'un ImageManager avec la base de données contenant toutes les images stockées
     private val imageManager = ImageManager(application)
 
-    // Creation d'une LiveData qui contiendra toutes les images generees
+    // Création d'une LiveData qui contiendra toutes les images générées
     private val generatedImagesLiveData = MutableLiveData<List<GeneratedImage>>(emptyList())
 
-    //  Fusion des 2 Liste d'Image Stored et Generated pour tous les afficher
+    //  Fusion des 2 listes d'ImageStored et ImageGenerated pour toutes les afficher
     val elementsLiveData: LiveData<List<CommonImage>> = imageManager.watchSavedImages().switchMap { storedImages ->
         generatedImagesLiveData.map { generatedImages ->
-            // On concatene la liste des images generees a la liste des images stockees
+            // On concatène la liste des images générées à la liste des images stockées
             storedImages + generatedImages.filter {generatedImage ->
-                //si l'image stocke est la meme que celle deja genere on l'enleve
+                // Si l'image stockée est la même que celle déjà générée on l'enlève
                 !storedImages.any {
                     it.imageName == generatedImage.url.removePrefix(imageManager.urlPrefix)
                 }
@@ -30,16 +30,16 @@ class ImageViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // On genere une image et on la met dans la liste des images generees
+    // On génère une image et on la met dans la liste des images générées
     fun genElement() = viewModelScope.launch {
         try {
-            // On appelle l'API pour genere une url d'Image
+            // On appelle l'API pour générer une url d'Image
             val image = imageManager.genereImage()
-            // On recupere la liste des elements deja affiche
+            // On récupère la liste des éléments déjà affichée
             val alreadyGeneratedImages = generatedImagesLiveData.value.orEmpty()
-            // On verifie que la liste ne contient pas l'image genere (pas possible normalement)
+            // On vérifie que la liste ne contient pas l'image générée (pas possible normalement)
             if (!alreadyGeneratedImages.contains(image)) {
-                // On concatene l'image a la liste des images deja affiche
+                // On concatène l'image à la liste des images dejà affichées
                 generatedImagesLiveData.value = alreadyGeneratedImages + image
             }
         } catch (e: CancellationException) {
@@ -50,7 +50,7 @@ class ImageViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    // On sauvegarde l'image decrit par l'url
+    // On sauvegarde l'image décrite par l'url
     suspend fun saveImage(imageUrl: String){
         imageManager.saveImage(imageUrl)
     }

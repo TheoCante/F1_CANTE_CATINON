@@ -1,13 +1,13 @@
 # F1_CANTE_CATINON
 
-### TP Noté d'Android pour la PAM
+### Programmation d'Applications Mobiles - TP Noté sous Android
 
-Notre application a pour but de récupérer des images depuis internet générer par une IA (inspiroBot)
+Notre application a pour but de récupérer des images générées par une IA en ligne ([inspiroBot](https://inspirobot.me/api?generate=true)) 
 
 Elle possède 2 écrans :
-- Le premier est l’écran d’accueil où vous pouvez voir les images que vous avez sauvegardées et en générer de nouvelle grâce au bouton <b>"Ajouter"</b>
+- Le premier est celui d’accueil où vous pouvez voir les images que vous avez sauvegardées et en générer de nouvelle grâce au bouton <b>"Ajouter"</b>
 	
-- Le deuxième écran apparait quand on appuie sur un des éléments du premier écran et sert à afficher une image qu’on pourra ensuite sauvegarder pour une prochaine ouverture a l’aide du bouton <b>"Sauvegarder"</b> ou bien partager cette image grâce au bouton <b>"Partager"</b> 
+- Le deuxième écran apparait quand on appuie sur un des éléments du premier écran. Il affiche l'image sélectionnée, qu’on pourra ensuite sauvegarder pour une prochaine ouverture à l’aide du bouton <b>"Sauvegarder"</b> ou bien partager grâce au bouton <b>"Partager"</b> 
 
 <p align="center">
     <img src="Images/Home.png" width=20%/>

@@ -11,59 +11,59 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 
-// Fragment d'acceuil de l'application
+// Fragment d'accueil de l'application
 class HomeFragment : Fragment(R.layout.home_fragment) {
-    // Recupere le ViewModel
+    // Récupère le ViewModel
     private val imageViewModel : ImageViewModel by activityViewModels()
 
-    // Creation du fragment
+    // Création du fragment
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Recuperation du layoutManager
+        // Récupération du layoutManager
         val recyclerView: RecyclerView = view.findViewById(R.id.recyclerView)
 
-        // Creation d'un LayoutManager pour la recyclerView
+        // Création d'un LayoutManager pour la recyclerView
         recyclerView.layoutManager = LinearLayoutManager(view.context)
 
 
-        // Creation de l'adapter qui sera associe a la RecyclerView
+        // Création de l'adapter qui sera associé à la RecyclerView
         val customAdapter = ItemAdapter(ArrayList<StoredImage>(10),
             // Callback des Views dans la RecyclerView
             object : UpdateCallbacks{
-                // Redefinition de onClick
+                // Redéfinition de onClick
                 override fun onClick(image: CommonImage){
-                    // On passe a la vue detaille de l'image
-                    if(image is GeneratedImage) {//Si l'image est generee on envoie l'URL
+                    // On passe à la vue détaillée de l'image
+                    if(image is GeneratedImage) { // Si l'image est générée on envoie l'URL
                         findNavController().navigate(HomeFragmentDirections.actionFragment2ToHomeFragment(image.url))
                     }
-                    if(image is StoredImage) {//Si l'image est stockee on envoie le nom
+                    if(image is StoredImage) { // Si l'image est é on envoie le nom
                         findNavController().navigate(HomeFragmentDirections.actionFragment2ToHomeFragment(image.imageName))
                     }
                 }
         })
 
-        // Creation de l'observer qui met a jour l'UI
+        // Création de l'observer qui met à jour l'UI
         imageViewModel.elementsLiveData.observe(viewLifecycleOwner) { list ->
             customAdapter.updateElements(list)
         }
 
-        // Recuperation du bonton d'ajout d'image
+        // Récupération du bouton d'ajout d'image
         val buttonAdd = view.findViewById<Button>(R.id.buttonAdd)
-        // On cree une image quand a l'appui sur le bouton
+        // On crée une image lors d'un appui sur le bouton
         buttonAdd.setOnClickListener {
             imageViewModel.genElement()
         }
 
-        // Creation de l'observer qui signale a l'utilisateur une erreur
+        // Création de l'observer qui signale à l'utilisateur une erreur
         imageViewModel.errors.observe(viewLifecycleOwner) {
-            if(it != null) { // si l'erreur existe on l'affiche puis on la supprime
-                Toast.makeText(this.context,"Probleme (${it::class.java.simpleName}", Toast.LENGTH_LONG).show()
+            if(it != null) { // Si l'erreur existe on l'affiche puis on la supprime
+                Toast.makeText(this.context,"Problème (${it::class.java.simpleName}", Toast.LENGTH_LONG).show()
                 imageViewModel.clearError()
             }
         }
 
-        // On donne notre adapter a la RecyclerView
+        // On donne notre adapter à la RecyclerView
         recyclerView.adapter = customAdapter
     }
 }

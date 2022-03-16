@@ -16,58 +16,58 @@ import java.io.File
 
 // Classe pour la gestion d'Image
 class ImageManager(applicationContext: Context) {
-    // Recuperation de la base de donnes des images stockes
+    // Récupération de la base de données des images stockées
     val db : AppDatabase = Room.databaseBuilder(
         applicationContext,
         AppDatabase::class.java, "image-db"
     ).build()
 
-    // Le client Http
+    // Client Http
     val client = HttpClient(OkHttp)
-    // Le contexte de l'application
+    // Contexte de l'application
     val ctx = applicationContext
-    // Le prefix des image genere par notre API
+    // Préfixe des images générées par l'API
     val urlPrefix = "https://generated.inspirobot.me/a/"
 
-    // Recuperation d'une Image par Internet
+    // Récupération d'une Image par Internet
     suspend fun genereImage(): GeneratedImage {
-        // Requete Http pour creer l'url d'une image
+        // Requête Http pour créer l'url d'une image
         val httpResponse: HttpResponse = client.get("https://inspirobot.me/api?generate=true")
-        // Recuperation de l'url de l'image Cree
+        // Récupération de l'url de l'image créée
         val url: String = httpResponse.receive()
-        // Creation d'une image GeneratedImage a partir de l'url
+        // Création d'une image GeneratedImage à partir de l'url
         return GeneratedImage(url)
     }
 
-    // Recupere une LiveData de la base pour ecouter les changements
+    // Récupère une LiveData de la base pour écouter les changements
     fun watchSavedImages(): LiveData<List<StoredImage>> =  db.imageDao().watchAll()
 
-    // Retourne le ByteArray decrivant l'image
+    // Retourne le ByteArray décrivant l'image
     private suspend fun getImageFromWeb(image: StoredImage):ByteArray {
-        // Requete Http pour recuperer l'image
+        // Requête Http pour récupérer l'image
         val httpResponse: HttpResponse = client.get(image.imageUrl)
-        // Recuperation de l'url de l'image en ByteArray
+        // Récupération de l'url de l'image en ByteArray
         return httpResponse.receive()
     }
 
-    // Sauvegarde une image dans la base de donnes et la stocke dans un fichier
+    // Sauvegarde une image dans la base de données et la stockée dans un fichier
     suspend fun saveImage(imageUrl: String){
-        // Creation d'une StoredImage a partir de l'image
+        // Création d'une StoredImage à partir de l'image
         val imageToSave = StoredImage(imageUrl.removePrefix(urlPrefix))
 
-        // Creation d'un nom de fichier a partir de l'url
+        // Création d'un nom de fichier à partir de l'url
         val filename = imageToSave.imageName
         // Creation d'un fichier a partir du nom
         val file = File(ctx.filesDir, filename)
 
         try {
-            //  Recuperation de l'image depuis le Web
+            // Récupération de l'image depuis le Web
             val imageArray = getImageFromWeb(imageToSave)
-            //  Sauvegarde de l'image dans un fichier
+            // Sauvegarde de l'image dans un fichier
             withContext(Dispatchers.IO) {
                 file.writeBytes(imageArray)
             }
-            // Sauvegarde de l'image dans la base de donnes
+            // Sauvegarde de l'image dans la base de données
             db.imageDao().insertAll(imageToSave)
         } catch (e: CancellationException) {
             throw e
@@ -76,7 +76,7 @@ class ImageManager(applicationContext: Context) {
         }
     }
 
-    //metchode pour recuperer une url depuis une StoredImage
+    // Méthode pour récupérer une url depuis une StoredImage
     val StoredImage.imageUrl:String
         get() = urlPrefix + imageName
 

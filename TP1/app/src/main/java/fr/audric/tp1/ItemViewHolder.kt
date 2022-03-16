@@ -7,12 +7,12 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import java.io.File
 
-// Notre ViewHolder customise
+// ViewHolder customisé
 class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-    // Recupere l'imageView de la case du RecyclerView
+    // Récupère l'imageView de la case du RecyclerView
     private val _imageView: ImageView = itemView.findViewById(R.id.recycle_item_image)
-    // Recupere le bouton de la case du RecyclerView
+    // Récupère le bouton de la case du RecyclerView
     private val _button: Button = itemView.findViewById(R.id.recycle_item_button)
 
     fun update(image: CommonImage,classeFunction : UpdateCallbacks) {
@@ -20,14 +20,14 @@ class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         _button.setOnClickListener {
             classeFunction.onClick(image)
         }
-        // Si l'image est stockee
+        // Si l'image est stockée
         if(image is StoredImage) {
-            // On cherche l'image dans le systeme de fichier
+            // On cherche l'image dans le système de fichier
             val imageFile =  File(_imageView.context.filesDir, image.imageName)
-            // Affiche l'image dans l'imageView grace a coil
+            // Affiche l'image dans l'imageView grace à coil
             _imageView.load(imageFile)
         } else {
-            // Affiche l'image 'inconnu'
+            // Affiche le placeholder 'inconnu'
             _imageView.load(R.drawable.unknown)
         }
     }

@@ -3,7 +3,7 @@ package fr.audric.tp1
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-// Classe representant une image stocke dans le systeme de fichier
+// Classe représentant une image stockée dans le système de fichiers
 @Entity
 data class StoredImage(
     @PrimaryKey val imageName: String
